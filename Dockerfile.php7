@@ -7,7 +7,6 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install
 RUN rm /etc/localtime
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 RUN dpkg-reconfigure -f noninteractive tzdata
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openjdk-8-jdk
 RUN apt update && apt install -y curl apt-transport-https git zip \
 software-properties-common \
 build-essential \
@@ -47,6 +46,5 @@ ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 WORKDIR /var/www/
 RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/ && ln -s /usr/local/bin/composer.phar /usr/local/bin/composer
-#RUN chmod -R 777 storage bootstrap
 EXPOSE 8000
 CMD php artisan serve --host=0.0.0.0 --port=8000
