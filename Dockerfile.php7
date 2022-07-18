@@ -1,0 +1,52 @@
+#Image Ubuntu 18
+FROM ubuntu:20.04
+MAINTAINER bananadevs
+#update ubuntu software repository
+ENV TZ 'America/La_Paz'
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
+RUN rm /etc/localtime
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
+RUN dpkg-reconfigure -f noninteractive tzdata
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openjdk-8-jdk
+RUN apt update && apt install -y curl apt-transport-https git zip \
+software-properties-common \
+build-essential \
+ca-certificates \
+libssl-dev \
+npm \
+wget \
+php7.4 \
+php7.4-fpm \
+php7.4-cli \
+php7.4-common \
+php7.4-pgsql \
+php7.4-zip \
+php7.4-mbstring \
+php7.4-xml \
+php7.4-json \
+php7.4-phar \
+php7.4-gd \
+php7.4-curl \
+php7.4-cgi \
+php7.4-intl \
+php7.4-snmp
+#file upload
+RUN sed -i 's/post_max_size = 8M/post_max_size = 100M/' /etc/php/7.4/cli/php.ini
+RUN sed -i 's/post_max_size = 8M/post_max_size = 100M/' /etc/php/7.4/fpm/php.ini
+RUN sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 100M/' /etc/php/7.4/fpm/php.ini
+RUN sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 100M/' /etc/php/7.4/cli/php.ini
+RUN mkdir -p /usr/local/nvm
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 14.17.3
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash \
+&& . $NVM_DIR/nvm.sh \
+&& nvm install $NODE_VERSION \
+&& nvm alias default $NODE_VERSION \
+&& nvm use default
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+WORKDIR /var/www/
+RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/ && ln -s /usr/local/bin/composer.phar /usr/local/bin/composer
+#RUN chmod -R 777 storage bootstrap
+EXPOSE 8000
+CMD php artisan serve --host=0.0.0.0 --port=8000
